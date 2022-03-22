@@ -1,2 +1,3 @@
 # MEG-Topological-and-Fractal-analysis
-MEG subjects studies of topological and fractal parameters in ROis description
+
+Analysis of magnetoencephalography and electroencephalography signals of various subjects to characterize topological and fractal parameters in ROis description
