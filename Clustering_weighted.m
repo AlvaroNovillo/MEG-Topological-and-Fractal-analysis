@@ -1,8 +1,10 @@
 clear all
+%Generate the data
 load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_alpha.mat")
 %Filter betweeen boys and Girls
 boys = sample.neuro_vals(:,2) == 1; %Boys logical array
 girls = sample.neuro_vals(:,2) == 2; %Girls logical array
+
 boy_rois = load_ROIs(boys, fcmatrix); %Boys ROIs matrix
 girl_rois = load_ROIs(girls, fcmatrix); %Girls ROIs matrix
 
@@ -35,13 +37,18 @@ save('C_girls.mat','C_girls');
 save('dist_boys.mat','dist_boys');
 save('dist_girls.mat','dist_girls');
 %%
-%Alternatively, you can load the data from GitHub
-% load('data_cluster_length\C_boys.mat');
-% load('data_cluster_length\C_girls.mat');
-% load("data_cluster_length\dist_boys.mat");
-% load("data_cluster_length\dist_girls.mat");
+% Alternatively, you can load the data from GitHub
+load('data_cluster_length\C_boys.mat');
+load('data_cluster_length\C_girls.mat');
+load("data_cluster_length\dist_boys.mat");
+load("data_cluster_length\dist_girls.mat");
 %%
-paint_topo(C_boys,dist_boys,C_girls,dist_girls)
+%eTIV and age/sex classification 
+[age_boys,eTIV_boys] = neuro_sex_load(boys,sample);
+[age_girls, eTIV_girls] = neuro_sex_load(girls,sample);
+
+%%
+paint_topo(C_boys,dist_boys,C_girls,dist_girls, age_boys,eTIV_boys,age_girls, eTIV_girls)
 %% 
 % 
 
@@ -60,11 +67,12 @@ function sex_ROIs =load_ROIs(sex, fcmatrix)
     end   
 end
 
-function paint_topo(C_boys,dist_boys,C_girls,dist_girls)
+function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_girls,eTIV_girls)
 %%%
-%Plot C vs d for boys and girls 
+%Sequence of plots and stadistics
 %%%
     figure();
+    %C vs dist 
     hold on;
     plot(C_boys,dist_boys,'o')
     plot(C_girls,dist_girls,'s')
@@ -74,6 +82,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls)
     hold off;
     
     figure();
+    %Histogram of C
     hold on;
     h1 = histogram(C_boys);
     h2 = histogram(C_girls);
@@ -81,9 +90,12 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls)
     h2.Normalization = 'probability';
     legend('Boys', 'Girls')
     xlabel('Clustering Coeff')
-    hold off
+    hold off;
+    sprintf('The mean of the distribution for C is %.3f for boys and %.3f for girls', mean(full(C_boys)), mean(full(C_girls),'omitnan'))
+    sprintf('The std of the distribution for C is %.3f for boys and %.3f for girls', std(full(C_boys)), std(full(C_girls),'omitnan'))
     
     figure();
+    %Histogram of d
     hold on;
     h1 = histogram(dist_boys);
     h2 = histogram(dist_girls);
@@ -91,5 +103,43 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls)
     h2.Normalization = 'probability';
     legend('Boys', 'Girls')
     xlabel('Shortest path length')
+    sprintf('The mean of the distribution for dist is %.3f for boys and %.3f for girls', mean(full(dist_boys)), mean(full(dist_girls),'omitnan'))
+    sprintf('The std of the distribution for dist is %.3f for boys and %.3f for girls', std(full(dist_boys)), std(full(dist_girls),'omitnan'))
     hold off
+    
+    figure();
+    hold on;
+    yyaxis left
+    plot(age_boys,C_boys,'o')
+    xlabel('Age')
+    ylabel('Clustering boys')
+    
+    yyaxis right
+    plot(age_girls,C_girls,'s')
+
+    title('Clustering Coeff vs age')
+    ylabel('Clustering girls')
+    legend('Boys', 'Girls')
+    hold off;
+    
+    
+    figure();
+    hold on;
+    yyaxis left
+    plot(eTIV_boys,C_boys,'o')
+    xlabel('eTIV')
+    ylabel('eTIV boys')
+    
+    yyaxis right
+    plot(eTIV_girls,C_girls,'s')
+
+    title('Clustering Coeff vs eTIV')
+    ylabel('eTIV girls')
+    legend('Boys', 'Girls')
+    hold off;
+end
+
+function [age_sex,eTIV_sex] = neuro_sex_load(sex,sample)
+    age_sex = sample.neuro_vals(find(sex),1);
+    eTIV_sex = sample.vols_vals(find(sex),1);
 end
