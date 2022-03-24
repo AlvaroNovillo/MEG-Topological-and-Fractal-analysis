@@ -1,3 +1,4 @@
+%Weigthed clustering coefficient C(w_ij)
 clear all
 %Generate the data
 load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_alpha.mat")
@@ -5,32 +6,31 @@ load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_alpha.mat")
 boys = sample.neuro_vals(:,2) == 1; %Boys logical array
 girls = sample.neuro_vals(:,2) == 2; %Girls logical array
 %%
-
 boy_rois = load_ROIs(boys, fcmatrix); %Boys ROIs matrix
 girl_rois = load_ROIs(girls, fcmatrix); %Girls ROIs matrix
 
-%Node number 
 %Computation of the clustering coefficient and spl. 
 for i=1:length(find(boys))
     g_boys = graph(boy_rois(:,:,i),'upper','omitselfloops');
     ad_boys = adjacency(g_boys,'weighted');
     C_boys(i) = mean(clustering_coef_wu(ad_boys));
-    D_boys = distance_wei(ad_boys);
+    D_boys = distance_wei(1./ad_boys);
     D_boys(D_boys==Inf)=0;
-    dist_boys(i)= mean(D_boys(D_boys>0));
+    dist_boys(i)= mean(D_boys,'all');
 end
 for i=1:length(find(girls))
     g_girls= graph(girl_rois(:,:,i),'upper','omitselfloops');
     ad_girls = adjacency(g_girls,'weighted');
     C_girls(i) = mean(clustering_coef_wu(ad_girls));
-    D_girls = distance_wei(ad_girls);
+    D_girls = distance_wei(1./ad_girls);
     D_girls(D_girls==Inf)=0;
     dist_girls(i)= mean(D_girls(D_girls>0));
 end
-
-%There was a subject whose values where to high
-dist_girls(dist_girls == max(dist_girls)) = nan;
-C_girls(C_girls == max(C_girls)) = nan;
+%Transform to arrays 
+C_boys = full(C_boys);
+C_girls = full(C_girls);
+dist_boys = full(dist_boys);
+dist_girls = full(dist_girls);
 
 %Save the values for further use 
 save('C_boys.mat','C_boys');
@@ -45,8 +45,8 @@ load("data_cluster_length_weighted\dist_boys.mat");
 load("data_cluster_length_weighted\dist_girls.mat");
 %%
 %eTIV and age/sex classification 
-[age_boys,eTIV_boys] = neuro_sex_load(boys,sample);
-[age_girls, eTIV_girls] = neuro_sex_load(girls,sample);
+[age_boys,eTIV_boys,study_boys] = neuro_sex_load(boys,sample);
+[age_girls, eTIV_girls,study_girls] = neuro_sex_load(girls,sample);
 
 %%
 paint_topo(C_boys,dist_boys,C_girls,dist_girls, age_boys,eTIV_boys,age_girls, eTIV_girls)
@@ -67,6 +67,7 @@ function sex_ROIs =load_ROIs(sex, fcmatrix)
         sex_ROIs(:,:,i) = sex_ROIs(:,:,i) - diag(diag(sex_ROIs(:,:,i)));
     end   
 end
+
 
 function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_girls,eTIV_girls)
 %%%
@@ -104,8 +105,8 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     h2.Normalization = 'probability';
     legend('Boys', 'Girls')
     xlabel('Shortest path length')
-    sprintf('The mean of the distribution for dist is %.3f for boys and %.3f for girls', mean(full(dist_boys)), mean(full(dist_girls),'omitnan'))
-    sprintf('The std of the distribution for dist is %.3f for boys and %.3f for girls', std(full(dist_boys)), std(full(dist_girls),'omitnan'))
+    sprintf('The mean of the distribution for dist is %.3f for boys and %.3f for girls', mean(full(dist_boys),'omitnan'), mean(full(dist_girls),'omitnan'))
+    sprintf('The std of the distribution for dist is %.3f for boys and %.3f for girls', std(full(dist_boys), 'omitnan'), std(full(dist_girls),'omitnan'))
     hold off
     
     %Clustering
@@ -154,7 +155,8 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     hold off;
 end
 
-function [age_sex,eTIV_sex] = neuro_sex_load(sex,sample)
+function [age_sex,eTIV_sex,study_sex] = neuro_sex_load(sex,sample)
     age_sex = sample.neuro_vals(find(sex),1);
     eTIV_sex = sample.vols_vals(find(sex),1);
+    study_sex = sample.neuro_vals(find(sex),3);
 end
