@@ -1,7 +1,8 @@
 %Weigthed clustering coefficient C(w_ij)
 clear all
 %Generate the data
-load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_alpha.mat")
+load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_alpha.mat") %alpha
+%load("..\plv_78ROIs\sexy_cn_312s_plv_78_rois_beta.mat") %beta
 %Filter betweeen boys and Girls
 boys = sample.neuro_vals(:,2) == 1; %Boys logical array
 girls = sample.neuro_vals(:,2) == 2; %Girls logical array
@@ -105,20 +106,29 @@ save('dist_girls.mat','dist_girls');
 save('deg_boys.mat',"deg_boys");
 save('deg_girls.mat',"deg_girls");
 %%
-% Alternatively, you can load the data from GitHub
-% load('data_cluster_length_weighted\C_boys.mat');
-% load("data_cluster_length_weighted\C_girls.mat");
-% load("data_cluster_length_weighted\dist_boys.mat");
-% load("data_cluster_length_weighted\dist_girls.mat");
-% load("data_cluster_length_weighted\deg_boys.mat");
-% load("data_cluster_length_weighted\deg_girls.mat");
+%Alternatively, you can load the data from GitHub
+%alpha band 
+% load('data_cluster_length_weighted\alpha\C_boys.mat');
+% load('data_cluster_length_weighted\alpha\C_girls.mat');
+% load('data_cluster_length_weighted\alpha\dist_boys.mat');
+% load('data_cluster_length_weighted\alpha\dist_girls.mat');
+% load('data_cluster_length_weighted\alpha\deg_boys.mat');
+% load('data_cluster_length_weighted\alpha\deg_girls.mat');
+%beta band
+% load('data_cluster_length_weighted\beta\C_boys.mat');
+% load("data_cluster_length_weighted\beta\C_girls.mat");
+% load("data_cluster_length_weighted\beta\dist_boys.mat");
+% load("data_cluster_length_weighted\beta\dist_girls.mat");
+% load("data_cluster_length_weighted\beta\deg_boys.mat");
+% load("data_cluster_length_weighted\beta\deg_girls.mat");
+
 %%
 %eTIV and age/sex classification 
 [age_boys,eTIV_boys,study_boys] = neuro_sex_load(boys,sample);
 [age_girls, eTIV_girls,study_girls] = neuro_sex_load(girls,sample);
 
 %%
-paint_topo(C_boys,dist_boys,C_girls,dist_girls, age_boys,eTIV_boys,age_girls, eTIV_girls,deg_boys,deg_girls)
+paint_topo(C_boys,dist_boys,C_girls,dist_girls, age_boys,eTIV_boys,age_girls, eTIV_girls,deg_boys,deg_girls,study_boys,study_girls)
 
 %% 
 % 
@@ -141,7 +151,7 @@ function sex_ROIs =load_ROIs(sex, fcmatrix)
 end
 
 
-function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_girls,eTIV_girls,deg_boys, deg_girls)
+function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_girls,eTIV_girls,deg_boys, deg_girls,study_boys,study_girls)
 %%%
 %Sequence of plots and stadistics
 %%%
@@ -150,7 +160,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     hold on;
     plot(C_boys,dist_boys,'o')
     plot(C_girls,dist_girls,'s')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     xlabel('Clustering Coeff')
     ylabel('Shortest path length')
     hold off;
@@ -162,7 +172,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     h2 = histogram(C_girls);
     h1.Normalization = 'probability';
     h2.Normalization = 'probability';
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     xlabel('Clustering Coeff')
     hold off;
 %     sprintf('The mean of the distribution for C is %.3f for boys and %.3f for girls', mean(full(C_boys)), mean(full(C_girls),'omitnan'))
@@ -175,7 +185,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     h2 = histogram(dist_girls);
     h1.Normalization = 'probability';
     h2.Normalization = 'probability';
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     xlabel('Shortest path length')
 %     sprintf('The mean of the distribution for dist is %.3f for boys and %.3f for girls', mean(full(dist_boys),'omitnan'), mean(full(dist_girls),'omitnan'))
 %     sprintf('The std of the distribution for dist is %.3f for boys and %.3f for girls', std(full(dist_boys), 'omitnan'), std(full(dist_girls),'omitnan'))
@@ -188,7 +198,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     h2 = histogram(deg_girls);
     h1.Normalization = 'probability';
     h2.Normalization = 'probability';
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     xlabel('Mean degree')
     hold off;
     
@@ -201,7 +211,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('Age')
     ylabel('Clustering')
     title('Clustering Coeff vs age')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
     
@@ -212,7 +222,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('eTIV')
     ylabel('Clustering')
     title('Clustering Coeff vs eTIV')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
     %Distance
@@ -224,7 +234,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('Age')
     ylabel('Shortest path length')
     title('Shortest path length vs age')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
     
@@ -235,7 +245,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('eTIV')
     ylabel('Shortest path length')
     title('Shortest path length vs eTIV')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
     %Degree
@@ -246,7 +256,7 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('Age')
     ylabel('Mean degree')
     title('Mean degree vs age')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
     
@@ -257,9 +267,120 @@ function paint_topo(C_boys,dist_boys,C_girls,dist_girls,age_boys,eTIV_boys,age_g
     xlabel('eTIV')
     ylabel('Mean degree')
     title('Mean degree vs eTIV')
-    legend('Boys', 'Girls')
+    legend('Man', 'Woman')
     hold off;
     
+    %Box-Whiskers plots 
+    
+    %C 
+    C_box = [C_boys';C_girls'];
+    g = [ones(size(C_boys')); 2*ones(size(C_girls'))]; %Boys and girls class.
+    binEdges = 1:3;
+    bins = {'Man', 'Woman'};
+    groupSex = discretize(g,binEdges,'categorical',bins);
+    
+    figure();
+    hold on;
+    boxchart(groupSex,C_box,'GroupByColor',groupSex)
+    ylabel('Clustering ')
+    xlabel('gender')
+    legend('Location',"best")
+    title('Clustering Coefficient')
+    hold off;
+
+    %dist
+    dist_box = [dist_boys';dist_girls'];
+    g = [ones(size(dist_boys')); 2*ones(size(dist_girls'))]; %Boys and girls class.
+    binEdges = 1:3;
+    bins = {'Man', 'Woman'};
+    groupSex = discretize(g,binEdges,'categorical',bins);
+    
+    figure();
+    hold on;
+    boxchart(groupSex,dist_box,'GroupByColor',groupSex)
+    ylabel('Shortest path length')
+    xlabel('gender')
+    legend('Location',"best")
+    title('Shortest path length')
+    hold off;
+    
+    %degree
+    k_box = [deg_boys';deg_girls'];
+    g = [ones(size(deg_boys')); 2*ones(size(deg_girls'))]; %Boys and girls class.
+    binEdges = 1:3;
+    bins = {'Man', 'Woman'};
+    groupSex = discretize(g,binEdges,'categorical',bins);
+    
+    figure();
+    hold on;
+    boxchart(groupSex,k_box,'GroupByColor',groupSex)
+    ylabel('K')
+    xlabel('gender')
+    legend('Location',"best")
+    title('K')
+    hold off;
+    
+    
+    %C per age
+    figure();
+    ages = [age_boys;age_girls];
+    binEdges = 50:10:90;
+    bins = {'50s','60s','70s','80s'};
+    groupAge = discretize(ages,binEdges,'categorical',bins);
+    boxchart(groupAge,C_box,'GroupByColor',groupSex)
+    title('Clustering vs age')
+    legend('Location',"best")
+    ylabel('Clustering')
+    xlabel('age')
+    
+    %dist per age
+    figure();
+    boxchart(groupAge,dist_box,'GroupByColor',groupSex)
+    title('Shortest path length vs age')
+    legend('Location',"best")
+    ylabel('Shortest path length')
+    xlabel('age')
+    
+    %K per age 
+    figure();
+    boxchart(groupAge,k_box,'GroupByColor',groupSex)
+    title('K vs age')
+    legend('Location',"best")
+    ylabel('K')
+    xlabel('age')
+    
+    
+    %C per study_year
+
+    figure();
+    study_period = [study_boys;study_girls];
+    study_period(isnan(study_period)) = 0;
+    binEdges = 0:5:35;
+    bins = {'-5','5','10' ,'15','20','25','+30'};
+    groupStudy = discretize(study_period,binEdges,'categorical',bins);
+    boxchart(groupStudy,C_box,'GroupByColor',groupSex)
+    title('Clustering vs Study period')
+    legend('Location',"best")
+    ylabel('Clustering')
+    xlabel('Study period')
+    
+    %dist per study_year
+    figure();
+    groupStudy = discretize(study_period,binEdges,'categorical',bins);
+    boxchart(groupStudy,dist_box,'GroupByColor',groupSex)
+    title('Shortest path length vs Study period')
+    legend('Location',"best")
+    ylabel('Shortest path length')
+    xlabel('Study period')
+    
+    %K per study_year
+    figure();
+    groupStudy = discretize(study_period,binEdges,'categorical',bins);
+    boxchart(groupStudy,k_box,'GroupByColor',groupSex)
+    title('K  vs Study period')
+    legend('Location',"best")
+    ylabel('K')
+    xlabel('Study period')
 end
 
 function [age_sex,eTIV_sex,study_sex] = neuro_sex_load(sex,sample)
