@@ -10,8 +10,8 @@ girls = sample.neuro_vals(:,2) == 2; %Girls logical array
 [age_boys,eTIV_boys,study_boys] = neuro_sex_load(boys,sample);
 [age_girls, eTIV_girls,study_girls] = neuro_sex_load(girls,sample);
 
-Cm_boys = load("Cm\Cm_boys.mat");
-Cm_girls = load("Cm\Cm_girls.mat");
+Cm_boys = load("Cm_new\Cm_boys.mat");
+Cm_girls = load("Cm_new\Cm_girls.mat");
 
 r=exp(-1:0.05:5);
 
@@ -97,7 +97,7 @@ hold off;
 frac_box = [frac_dim_boys(5,:)';frac_dim_girls(5,:)'];
 g = [ones(size(frac_dim_boys(5,:)')); 2*ones(size(frac_dim_girls(5,:)'))]; %Boys and girls class.
 binEdges = 1:3;
-bins = {'Boy','Girl'};
+bins = {'Man','Woman'};
 groupSex = discretize(g,binEdges,'categorical',bins);
 
 figure();
@@ -142,7 +142,7 @@ plot(eTIV_boys,frac_dim_boys(5,:),'o')
 hold on;
 plot(eTIV_girls,frac_dim_girls(5,:),'s')
 title('Corr. dimension vs eTIV')
-legend('Boys','Girls','Location',"best")
+legend('Man','Woman','Location',"best")
 ylabel('\beta')
 xlabel('eTIV')
 hold off;
@@ -176,7 +176,6 @@ function [frac_dim,delta] = fractalfit(r_int,Cm,int)
     [P_5,S] = polyfit(r_int,log(Cm(1,int)),1);
     frac_dim = P_5(1);
     %Estimation of the standard error of the slope
-%     delta = sqrt(1/(length(r_int)-2)*(sum((log(Cm(1,int)) - mean(log(Cm(1,int)))).^2)))/sqrt(sum((r_int - mean(r_int)).^2));
     Sy = sqrt(sum((log(Cm(1,int)) - P_5(1)*r_int - P_5(2)).^2)/(length(r_int - 2)));
     delta = Sy*sqrt(length(r_int)/(length(r_int)*sum(r_int.^2)-sum(r_int)^2));
     
