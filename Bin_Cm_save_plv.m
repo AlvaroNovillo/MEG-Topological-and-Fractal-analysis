@@ -14,7 +14,7 @@ dum = sprintf('../plv_78ROIs/sexy_cn_312s_plv_78_rois_%s.mat',band);
 files=dir(dum);
 filename=horzcat(files.folder,'\',files.name);
 
-load(filename) 
+load(filename);
 %Filter betweeen boys and Girls
 boys = sample.neuro_vals(:,2) == 1; %Boys logical array
 girls = sample.neuro_vals(:,2) == 2; %Girls logical array
